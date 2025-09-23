@@ -1,5 +1,7 @@
 import pygame
 import random as r
+import math as m
+import time as t
 pygame.init()
 xwsize=500
 ywsize=500
@@ -13,10 +15,13 @@ clock = pygame.time.Clock()
 running=True
 a=100
 b=100
-xpa=r.randint(-5, 5)
-xpb=r.randint(-5, 5)
-ypa=r.randint(-5, 5)
-ypb=r.randint(-5, 5)
+bv=5
+anglea=r.uniform(0, 2*m.pi)
+angleb=r.uniform(0, 2*m.pi)
+xva=m.cos(anglea)*bv
+xvb=m.cos(angleb)*bv
+yva=m.sin(anglea)*bv
+yvb=m.sin(angleb)*bv
 xa=xwsize/3
 xb=(xwsize/3)*2
 ya=ywsize/2
@@ -34,26 +39,25 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     distance=((xb-xa)**2+(yb-ya)**2)**0.5
-    print(int(distance))
     if xa >= xwwsize or xa <= xwsize-xwwsize or distance<=30:
-        xpa *= -1
+        xva *= -1
     if ya >= ywwsize or ya <= ywsize-ywwsize or distance<=30:
-        ypa *= -1
+        yva *= -1
     if xb >= xwwsize or xb <= xwsize-xwwsize or distance<=30:
-        xpb *= -1
+        xvb *= -1
     if yb >= ywwsize or yb <= ywsize-ywwsize or distance<=30:
-        ypb *= -1
+        yvb *= -1
     if distance<=30:
         a-=1
         b-=1
-    xa += xpa
-    xb += xpb
-    ya += ypa
-    yb += ypb
-    txa += xpa
-    txb += xpb
-    tya += ypa
-    tyb += ypb
+    xa += xva
+    xb += xvb
+    ya += yva
+    yb += yvb
+    txa += xva
+    txb += xvb
+    tya += yva
+    tyb += yvb
     coordsa=xa,ya
     coordsb=xb,yb
     coordstexta=txa,tya
