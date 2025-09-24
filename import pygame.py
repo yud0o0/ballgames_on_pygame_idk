@@ -33,15 +33,23 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     distance=((xb-xa)**2+(yb-ya)**2)**0.5
-    if xa >= xwwsize or xa <= xwsize-xwwsize or distance<=30:
+    if xa >= xwwsize or xa <= xwsize-xwwsize:
         xva *= -1
-    if ya >= ywwsize or ya <= ywsize-ywwsize or distance<=30:
+    if ya >= ywwsize or ya <= ywsize-ywwsize:
         yva *= -1
-    if xb >= xwwsize or xb <= xwsize-xwwsize or distance<=30:
+    if xb >= xwwsize or xb <= xwsize-xwwsize:
         xvb *= -1
-    if yb >= ywwsize or yb <= ywsize-ywwsize or distance<=30:
+    if yb >= ywwsize or yb <= ywsize-ywwsize:
         yvb *= -1
+    xva2=xva
+    yva2=yva
+    xvb2=xvb
+    yvb2=yvb
     if distance<=30:
+        xva=xvb2
+        yva=yvb2
+        xvb=xva2
+        yvb=yva2
         a-=1
         b-=1
     xa += xva
