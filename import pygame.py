@@ -52,6 +52,7 @@ while running:
         yvb=yva2
         a-=1
         b-=1
+        t.sleep(0.5)
     xa += xva
     xb += xvb
     ya += yva
