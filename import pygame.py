@@ -26,14 +26,8 @@ xa=xwsize/3
 xb=(xwsize/3)*2
 ya=ywsize/2
 yb=ywsize/2
-txa=(xwsize/3)-10
-txb=((xwsize/3)*2)-10
-tya=ywsize/2-6
-tyb=ywsize/2-6
 coordsa=xa,ya
 coordsb=xb,yb
-coordstexta=txa,tya
-coordstextb=txb,tyb
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -54,16 +48,8 @@ while running:
     xb += xvb
     ya += yva
     yb += yvb
-    txa += xva
-    txb += xvb
-    tya += yva
-    tyb += yvb
     coordsa=xa,ya
     coordsb=xb,yb
-    coordstexta=txa,tya
-    coordstextaa=txa-1, tya-1
-    coordstextb=txb,tyb
-    coordstextbb=txb-1, tyb-1
 
     screen.fill("white")
     pygame.draw.circle(screen, "black", coordsa, 17)
@@ -74,10 +60,14 @@ while running:
     acounter=font.render(str(a), True, "white")
     bcounterr=fontt.render(str(b), True, "black")
     bcounter=font.render(str(b), True, "white")
-    screen.blit(acounterr, coordstextaa)
-    screen.blit(acounter, coordstexta)
-    screen.blit(bcounterr, coordstextbb)
-    screen.blit(bcounter, coordstextb)
+    rect_a = acounter.get_rect(center=(xa, ya))
+    rect_ar = acounterr.get_rect(center=(xa, ya))
+    rect_b = bcounter.get_rect(center=(xb, yb))
+    rect_br = bcounterr.get_rect(center=(xb, yb))
+    screen.blit(acounterr,rect_ar)
+    screen.blit(acounter, rect_a)
+    screen.blit(bcounterr, rect_br)
+    screen.blit(bcounter, rect_b)
 
     pygame.display.flip()
     clock.tick(60)
