@@ -13,9 +13,13 @@ fontt=pygame.font.Font(None, 25)
 clock = pygame.time.Clock()
 
 running=True
+radius = 40
 a=100
 b=100
 bv=5
+brv=0.05
+anglesa=m.radians(90)
+anglesb=m.pi
 anglea=r.uniform(0, 2*m.pi)
 angleb=r.uniform(0, 2*m.pi)
 xva=m.cos(anglea)*bv
@@ -28,6 +32,9 @@ ya=ywsize/2
 yb=ywsize/2
 coordsa=xa,ya
 coordsb=xb,yb
+sword=pygame.image.load("withoutname.png")
+sword_rect=sword.get_rect()
+sword_mask=pygame.mask.from_surface(sword)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -41,6 +48,8 @@ while running:
         xvb *= -1
     if yb >= ywwsize or yb <= ywsize-ywwsize:
         yvb *= -1
+    anglesa += brv
+    anglesa += brv
     xva2=xva
     yva2=yva
     xvb2=xvb
@@ -54,9 +63,13 @@ while running:
         b-=1
         t.sleep(0.5)
     xa += xva
+    xsa = xa + radius * m.cos(anglesa)
     xb += xvb
+    xsb = xb
     ya += yva
+    ysa = ya + radius * m.sin(anglesa)
     yb += yvb
+    ysb = yb
     coordsa=xa,ya
     coordsb=xb,yb
 
@@ -77,7 +90,9 @@ while running:
     screen.blit(acounter, rect_a)
     screen.blit(bcounterr, rect_br)
     screen.blit(bcounter, rect_b)
-
+    sword_rotated = pygame.transform.rotate(sword, -m.degrees(anglesa)-90)
+    sword_rect = sword_rotated.get_rect(center=(xsa, ysa))
+    screen.blit(sword_rotated, sword_rect)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
