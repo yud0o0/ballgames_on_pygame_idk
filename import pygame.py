@@ -14,10 +14,12 @@ clock = pygame.time.Clock()
 
 running=True
 radius = 40
+adamage=1
 a=100
+bdamage=1
 b=100
 bv=5
-brv=0.05
+brv=0.1
 anglesa=m.radians(90)
 anglesb=m.pi
 anglea=r.uniform(0, 2*m.pi)
@@ -32,9 +34,12 @@ ya=ywsize/2
 yb=ywsize/2
 coordsa=xa,ya
 coordsb=xb,yb
-sword=pygame.image.load("withoutname.png")
-sword_rect=sword.get_rect()
-sword_mask=pygame.mask.from_surface(sword)
+sworda=pygame.image.load("withoutname.png")
+sworda_rect=sworda.get_rect()
+sworda_mask=pygame.mask.from_surface(sworda)
+swordb=pygame.image.load("withoutname.png")
+swordb_rect=swordb.get_rect()
+swordb_mask=pygame.mask.from_surface(swordb)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -49,7 +54,7 @@ while running:
     if yb >= ywwsize or yb <= ywsize-ywwsize:
         yvb *= -1
     anglesa += brv
-    anglesa += brv
+    anglesb += brv
     xva2=xva
     yva2=yva
     xvb2=xvb
@@ -59,19 +64,43 @@ while running:
         yva=yvb2
         xvb=xva2
         yvb=yva2
-        a-=1
-        b-=1
-        t.sleep(0.5)
     xa += xva
     xsa = xa + radius * m.cos(anglesa)
     xb += xvb
-    xsb = xb
+    xsb = xb + radius * m.cos(anglesb)
     ya += yva
     ysa = ya + radius * m.sin(anglesa)
     yb += yvb
-    ysb = yb
+    ysb = yb + radius * m.sin(anglesb)
     coordsa=xa,ya
     coordsb=xb,yb
+    aball = pygame.Surface((30, 30), pygame.SRCALPHA)
+    aball_rect = pygame.Rect(xa-15, ya-15, 30, 30)
+    aball_mask=pygame.mask.from_surface(aball)
+    bball = pygame.Surface((30, 30), pygame.SRCALPHA)
+    bball_rect = pygame.Rect(xb-15, yb-15, 30, 30)
+    bball_mask=pygame.mask.from_surface(bball)
+    offset2C = (swordb_rect.x - sworda_rect.x, swordb_rect.y - sworda_rect.y)
+    if sworda_mask.overlap(swordb_mask, offset2C):
+        brv *= -1
+    offsetbball = (bball_rect.x - sworda_rect.x, bball_rect.y - sworda_rect.y)
+    if sworda_mask.overlap(pygame.Mask((30,30), fill=True), offsetbball):
+        if not swordb_hit:
+            swordb_hit = True
+            b -= adamage
+            adamage += 1
+            t.sleep(0.5)
+    else:
+        swordb_hit = False
+    offsetaball = (aball_rect.x - swordb_rect.x, aball_rect.y - swordb_rect.y)
+    if swordb_mask.overlap(pygame.Mask((30,30), fill=True), offsetaball):
+        if not sworda_hit:
+            sworda_hit = True
+            a -= bdamage
+            bdamage += 1
+            t.sleep(0.5)
+    else:
+        sworda_hit = False
 
     screen.fill("white")
     pygame.draw.circle(screen, "black", coordsa, 17)
@@ -90,9 +119,12 @@ while running:
     screen.blit(acounter, rect_a)
     screen.blit(bcounterr, rect_br)
     screen.blit(bcounter, rect_b)
-    sword_rotated = pygame.transform.rotate(sword, -m.degrees(anglesa)-90)
-    sword_rect = sword_rotated.get_rect(center=(xsa, ysa))
-    screen.blit(sword_rotated, sword_rect)
+    sworda_rotated = pygame.transform.rotate(sworda, -m.degrees(anglesa)-90)
+    sworda_rect = sworda_rotated.get_rect(center=(xsa, ysa))
+    screen.blit(sworda_rotated, sworda_rect)
+    swordb_rotated = pygame.transform.rotate(swordb, -m.degrees(anglesb)-90)
+    swordb_rect = swordb_rotated.get_rect(center=(xsb, ysb))
+    screen.blit(swordb_rotated, swordb_rect)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
