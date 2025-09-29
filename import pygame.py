@@ -5,21 +5,23 @@ import time as t
 pygame.init()
 xwsize=500
 ywsize=500
-xwwsize=xwsize-15
-ywwsize=ywsize-15
+radius=ywsize/20
+xwwsize=xwsize-radius
+ywwsize=ywsize-radius
 screen=pygame.display.set_mode(size=(xwsize, ywsize))
-font=pygame.font.Font(None, 23)
-fontt=pygame.font.Font(None, 25)
+font=pygame.font.Font(None, int(radius))
+fontt=pygame.font.Font(None, int(radius+3))
 clock = pygame.time.Clock()
-
+aynhbinput = input("Do you want to see hit boxes? (True/False): ").strip().lower()
+areyouneedhb = aynhbinput in ("True","true","TRUE","t","T","1","y","Y","Yes","yes","YES")
 running=True
-radius = 40
+radiuss = radius*2 + 3 + 40
 adamage=1
 a=100
 bdamage=1
 b=100
 bv=5
-brv=0.1
+brv=0.06
 anglesa=m.radians(90)
 anglesb=m.pi
 anglea=r.uniform(0, 2*m.pi)
@@ -34,12 +36,19 @@ ya=ywsize/2
 yb=ywsize/2
 coordsa=xa,ya
 coordsb=xb,yb
-sworda=pygame.image.load("withoutname.png")
+sworda=pygame.image.load("sword.png")
 sworda_rect=sworda.get_rect()
-sworda_mask=pygame.mask.from_surface(sworda)
-swordb=pygame.image.load("withoutname.png")
+swordb=pygame.image.load("sword.png")
 swordb_rect=swordb.get_rect()
-swordb_mask=pygame.mask.from_surface(swordb)
+swordb_hit=False
+sworda_hit=False
+swords_hit=False
+sratio=40/150
+scale=4
+sword_height = radius * scale
+sword_width = int(sword_height * sratio)
+sworda = pygame.transform.scale(sworda, (sword_width, sword_height))
+swordb = pygame.transform.scale(swordb, (sword_width, sword_height))
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -59,32 +68,32 @@ while running:
     yva2=yva
     xvb2=xvb
     yvb2=yvb
-    if distance<=30:
+    if distance<=radius*2:
         xva=xvb2
         yva=yvb2
         xvb=xva2
         yvb=yva2
+    if sworda_rect.colliderect(swordb_rect):
+        if not swords_hit:
+            swords_hit = True
+            brv *= -1
+    else:
+        swords_hit = False
     xa += xva
-    xsa = xa + radius * m.cos(anglesa)
+    xsa = xa + radiuss * m.cos(anglesa)
     xb += xvb
-    xsb = xb + radius * m.cos(anglesb)
+    xsb = xb + radiuss * m.cos(anglesb)
     ya += yva
-    ysa = ya + radius * m.sin(anglesa)
+    ysa = ya + radiuss * m.sin(anglesa)
     yb += yvb
-    ysb = yb + radius * m.sin(anglesb)
+    ysb = yb + radiuss * m.sin(anglesb)
     coordsa=xa,ya
     coordsb=xb,yb
-    aball = pygame.Surface((30, 30), pygame.SRCALPHA)
-    aball_rect = pygame.Rect(xa-15, ya-15, 30, 30)
-    aball_mask=pygame.mask.from_surface(aball)
-    bball = pygame.Surface((30, 30), pygame.SRCALPHA)
-    bball_rect = pygame.Rect(xb-15, yb-15, 30, 30)
-    bball_mask=pygame.mask.from_surface(bball)
-    offset2C = (swordb_rect.x - sworda_rect.x, swordb_rect.y - sworda_rect.y)
-    if sworda_mask.overlap(swordb_mask, offset2C):
-        brv *= -1
-    offsetbball = (bball_rect.x - sworda_rect.x, bball_rect.y - sworda_rect.y)
-    if sworda_mask.overlap(pygame.Mask((30,30), fill=True), offsetbball):
+    aball = pygame.Surface((radius, radius), pygame.SRCALPHA)
+    aball_rect = pygame.Rect(xa-(radius * 0.8), ya-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
+    bball = pygame.Surface((radius, radius), pygame.SRCALPHA)
+    bball_rect = pygame.Rect(xb-(radius * 0.8), yb-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
+    if sworda_rect.colliderect(bball_rect):
         if not swordb_hit:
             swordb_hit = True
             b -= adamage
@@ -92,8 +101,7 @@ while running:
             t.sleep(0.5)
     else:
         swordb_hit = False
-    offsetaball = (aball_rect.x - swordb_rect.x, aball_rect.y - swordb_rect.y)
-    if swordb_mask.overlap(pygame.Mask((30,30), fill=True), offsetaball):
+    if swordb_rect.colliderect(aball_rect):
         if not sworda_hit:
             sworda_hit = True
             a -= bdamage
@@ -103,10 +111,10 @@ while running:
         sworda_hit = False
 
     screen.fill("white")
-    pygame.draw.circle(screen, "black", coordsa, 17)
-    pygame.draw.circle(screen, "red", coordsa, 15)
-    pygame.draw.circle(screen, "black", coordsb, 17)
-    pygame.draw.circle(screen, "blue", coordsb, 15)
+    pygame.draw.circle(screen, "black", coordsa, radius+3)
+    pygame.draw.circle(screen, "red", coordsa, radius)
+    pygame.draw.circle(screen, "black", coordsb, radius+3)
+    pygame.draw.circle(screen, "blue", coordsb, radius)
     acounterr=fontt.render(str(a), True, "black")
     acounter=font.render(str(a), True, "white")
     bcounterr=fontt.render(str(b), True, "black")
@@ -125,6 +133,11 @@ while running:
     swordb_rotated = pygame.transform.rotate(swordb, -m.degrees(anglesb)-90)
     swordb_rect = swordb_rotated.get_rect(center=(xsb, ysb))
     screen.blit(swordb_rotated, swordb_rect)
+    if areyouneedhb==True:
+        pygame.draw.rect(screen, (0, 255, 0), aball_rect, 3)
+        pygame.draw.rect(screen, (255, 0, 0), bball_rect, 3)
+        pygame.draw.rect(screen, (0, 0, 255), sworda_rect, 3) 
+        pygame.draw.rect(screen, (255, 255, 0), swordb_rect, 3)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
