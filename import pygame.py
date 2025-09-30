@@ -1,7 +1,6 @@
 import pygame
 import random as r
 import math as m
-import time as t
 pygame.init()
 xwsize=500
 ywsize=500
@@ -49,19 +48,37 @@ sword_height = radius * scale
 sword_width = int(sword_height * sratio)
 sworda = pygame.transform.scale(sworda, (sword_width, sword_height))
 swordb = pygame.transform.scale(swordb, (sword_width, sword_height))
+metal_sound=pygame.mixer.Sound("hit-metal.mp3")
+punchwithwall_sound=pygame.mixer.Sound("classic-punch.mp3")
+fistpunch_sound=pygame.mixer.Sound("fist-fight.mp3")
+game_ended=pygame.mixer.Sound("game-ended.mp3")
+game_started=pygame.mixer.Sound("sound-effec.mp3")
+pygame.mixer.Sound.play(game_started)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    if a <= 0 or b <= 0:
+        if a <= 0:
+            print("Blue won!")
+        if b <= 0:
+            print("Red won!")
+        pygame.mixer.Sound.play(game_ended)
+        pygame.time.delay(2000)
+        running = False
     distance=((xb-xa)**2+(yb-ya)**2)**0.5
     if xa >= xwwsize or xa <= xwsize-xwwsize:
         xva *= -1
+        pygame.mixer.Sound.play(punchwithwall_sound)
     if ya >= ywwsize or ya <= ywsize-ywwsize:
         yva *= -1
+        pygame.mixer.Sound.play(punchwithwall_sound)
     if xb >= xwwsize or xb <= xwsize-xwwsize:
         xvb *= -1
+        pygame.mixer.Sound.play(punchwithwall_sound)
     if yb >= ywwsize or yb <= ywsize-ywwsize:
         yvb *= -1
+        pygame.mixer.Sound.play(punchwithwall_sound)
     anglesa += brv
     anglesb += brv
     xva2=xva
@@ -73,10 +90,12 @@ while running:
         yva=yvb2
         xvb=xva2
         yvb=yva2
+        pygame.mixer.Sound.play(punchwithwall_sound)
     if sworda_rect.colliderect(swordb_rect):
         if not swords_hit:
             swords_hit = True
             brv *= -1
+            pygame.mixer.Sound.play(metal_sound)
     else:
         swords_hit = False
     xa += xva
@@ -98,7 +117,7 @@ while running:
             swordb_hit = True
             b -= adamage
             adamage += 1
-            t.sleep(0.5)
+            pygame.mixer.Sound.play(fistpunch_sound)
     else:
         swordb_hit = False
     if swordb_rect.colliderect(aball_rect):
@@ -106,7 +125,7 @@ while running:
             sworda_hit = True
             a -= bdamage
             bdamage += 1
-            t.sleep(0.5)
+            pygame.mixer.Sound.play(fistpunch_sound)
     else:
         sworda_hit = False
 
