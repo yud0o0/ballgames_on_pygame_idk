@@ -9,16 +9,17 @@ xwwsize=xwsize-radius
 ywwsize=ywsize-radius
 screen=pygame.display.set_mode(size=(xwsize, ywsize))
 font=pygame.font.Font(None, int(radius))
-fontt=pygame.font.Font(None, int(radius+3))
+fontt=pygame.font.Font(None, int(radius+5))
+fontw=pygame.font.Font(None, 40)
 clock = pygame.time.Clock()
 aynhbinput = input("Do you want to see hit boxes? (True/False): ").strip().lower()
 areyouneedhb = aynhbinput in ("True","true","TRUE","t","T","1","y","Y","Yes","yes","YES")
 running=True
 radiuss = radius*2 + 3 + 40
 adamage=1
-a=100
+a=15
 bdamage=1
-b=100
+b=15
 bv=5
 brv=0.06
 anglesa=m.radians(90)
@@ -54,50 +55,48 @@ fistpunch_sound=pygame.mixer.Sound("fist-fight.mp3")
 game_ended=pygame.mixer.Sound("game-ended.mp3")
 game_started=pygame.mixer.Sound("sound-effec.mp3")
 pygame.mixer.Sound.play(game_started)
+game_endede=pygame.USEREVENT+1
+wc=0
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    if a <= 0 or b <= 0:
-        if a <= 0:
-            print("Blue won!")
-        if b <= 0:
-            print("Red won!")
-        pygame.mixer.Sound.play(game_ended)
-        pygame.time.delay(2000)
-        running = False
     distance=((xb-xa)**2+(yb-ya)**2)**0.5
-    if xa >= xwwsize or xa <= xwsize-xwwsize:
-        xva *= -1
-        pygame.mixer.Sound.play(punchwithwall_sound)
-    if ya >= ywwsize or ya <= ywsize-ywwsize:
-        yva *= -1
-        pygame.mixer.Sound.play(punchwithwall_sound)
-    if xb >= xwwsize or xb <= xwsize-xwwsize:
-        xvb *= -1
-        pygame.mixer.Sound.play(punchwithwall_sound)
-    if yb >= ywwsize or yb <= ywsize-ywwsize:
-        yvb *= -1
-        pygame.mixer.Sound.play(punchwithwall_sound)
+    if a > 0:
+        if xa >= xwwsize or xa <= xwsize-xwwsize:
+            xva *= -1
+            pygame.mixer.Sound.play(punchwithwall_sound)
+        if ya >= ywwsize or ya <= ywsize-ywwsize:
+            yva *= -1
+            pygame.mixer.Sound.play(punchwithwall_sound)
+    if b > 0:
+        if xb >= xwwsize or xb <= xwsize-xwwsize:
+            xvb *= -1
+            pygame.mixer.Sound.play(punchwithwall_sound)
+        if yb >= ywwsize or yb <= ywsize-ywwsize:
+            yvb *= -1
+            pygame.mixer.Sound.play(punchwithwall_sound)
     anglesa += brv
     anglesb += brv
     xva2=xva
     yva2=yva
     xvb2=xvb
     yvb2=yvb
-    if distance<=radius*2:
-        xva=xvb2
-        yva=yvb2
-        xvb=xva2
-        yvb=yva2
-        pygame.mixer.Sound.play(punchwithwall_sound)
-    if sworda_rect.colliderect(swordb_rect):
-        if not swords_hit:
-            swords_hit = True
-            brv *= -1
-            pygame.mixer.Sound.play(metal_sound)
-    else:
-        swords_hit = False
+    if a > 0 and b > 0:
+        if distance<=radius*2:
+            xva=xvb2
+            yva=yvb2
+            xvb=xva2
+            yvb=yva2
+            pygame.mixer.Sound.play(punchwithwall_sound)
+    if a > 0 and b > 0:
+        if sworda_rect.colliderect(swordb_rect):
+            if not swords_hit:
+                swords_hit = True
+                brv *= -1
+                pygame.mixer.Sound.play(metal_sound)
+        else:
+            swords_hit = False
     xa += xva
     xsa = xa + radiuss * m.cos(anglesa)
     xb += xvb
@@ -108,55 +107,81 @@ while running:
     ysb = yb + radiuss * m.sin(anglesb)
     coordsa=xa,ya
     coordsb=xb,yb
-    aball = pygame.Surface((radius, radius), pygame.SRCALPHA)
-    aball_rect = pygame.Rect(xa-(radius * 0.8), ya-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
-    bball = pygame.Surface((radius, radius), pygame.SRCALPHA)
-    bball_rect = pygame.Rect(xb-(radius * 0.8), yb-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
-    if sworda_rect.colliderect(bball_rect):
-        if not swordb_hit:
-            swordb_hit = True
-            b -= adamage
-            adamage += 1
-            pygame.mixer.Sound.play(fistpunch_sound)
-    else:
-        swordb_hit = False
-    if swordb_rect.colliderect(aball_rect):
-        if not sworda_hit:
-            sworda_hit = True
-            a -= bdamage
-            bdamage += 1
-            pygame.mixer.Sound.play(fistpunch_sound)
-    else:
-        sworda_hit = False
-
+    if a > 0:
+        aball = pygame.Surface((radius, radius), pygame.SRCALPHA)
+        aball_rect = pygame.Rect(xa-(radius * 0.8), ya-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
+    if b > 0:
+        bball = pygame.Surface((radius, radius), pygame.SRCALPHA)
+        bball_rect = pygame.Rect(xb-(radius * 0.8), yb-(radius * 0.8), (radius * 0.8)*2, (radius * 0.8)*2)
+    if a > 0 and b > 0:
+        if sworda_rect.colliderect(bball_rect):
+            if not swordb_hit:
+                swordb_hit = True
+                b -= adamage
+                adamage += 1
+                pygame.mixer.Sound.play(fistpunch_sound)
+                pygame.time.delay(90)
+        else:
+            swordb_hit = False
+        if swordb_rect.colliderect(aball_rect):
+            if not sworda_hit:
+                sworda_hit = True
+                a -= bdamage
+                bdamage += 1
+                pygame.mixer.Sound.play(fistpunch_sound)
+                pygame.time.delay(90)
+        else:
+            sworda_hit = False
     screen.fill("white")
-    pygame.draw.circle(screen, "black", coordsa, radius+3)
-    pygame.draw.circle(screen, "red", coordsa, radius)
-    pygame.draw.circle(screen, "black", coordsb, radius+3)
-    pygame.draw.circle(screen, "blue", coordsb, radius)
-    acounterr=fontt.render(str(a), True, "black")
-    acounter=font.render(str(a), True, "white")
-    bcounterr=fontt.render(str(b), True, "black")
-    bcounter=font.render(str(b), True, "white")
-    rect_a = acounter.get_rect(center=(xa, ya))
-    rect_ar = acounterr.get_rect(center=(xa, ya))
-    rect_b = bcounter.get_rect(center=(xb, yb))
-    rect_br = bcounterr.get_rect(center=(xb, yb))
-    screen.blit(acounterr,rect_ar)
-    screen.blit(acounter, rect_a)
-    screen.blit(bcounterr, rect_br)
-    screen.blit(bcounter, rect_b)
-    sworda_rotated = pygame.transform.rotate(sworda, -m.degrees(anglesa)-90)
-    sworda_rect = sworda_rotated.get_rect(center=(xsa, ysa))
-    screen.blit(sworda_rotated, sworda_rect)
-    swordb_rotated = pygame.transform.rotate(swordb, -m.degrees(anglesb)-90)
-    swordb_rect = swordb_rotated.get_rect(center=(xsb, ysb))
-    screen.blit(swordb_rotated, swordb_rect)
+    if a > 0:
+        pygame.draw.circle(screen, "black", coordsa, radius+3)
+        pygame.draw.circle(screen, "red", coordsa, radius)
+        acounterr=fontt.render(str(a), True, "black")
+        acounter=font.render(str(a), True, "white")
+        rect_a = acounter.get_rect(center=(xa, ya))
+        rect_ar = acounterr.get_rect(center=(xa, ya))
+        screen.blit(acounterr,rect_ar)
+        screen.blit(acounter, rect_a)
+        sworda_rotated = pygame.transform.rotate(sworda, -m.degrees(anglesa)-90)
+        sworda_rect = sworda_rotated.get_rect(center=(xsa, ysa))
+        screen.blit(sworda_rotated, sworda_rect)
+    if b > 0:
+        pygame.draw.circle(screen, "black", coordsb, radius+3)
+        pygame.draw.circle(screen, "blue", coordsb, radius)
+        bcounterr=fontt.render(str(b), True, "black")
+        bcounter=font.render(str(b), True, "white")
+        rect_b = bcounter.get_rect(center=(xb, yb))
+        rect_br = bcounterr.get_rect(center=(xb, yb))
+        screen.blit(bcounterr, rect_br)
+        screen.blit(bcounter, rect_b)
+        swordb_rotated = pygame.transform.rotate(swordb, -m.degrees(anglesb)-90)
+        swordb_rect = swordb_rotated.get_rect(center=(xsb, ysb))
+        screen.blit(swordb_rotated, swordb_rect)
     if areyouneedhb==True:
-        pygame.draw.rect(screen, (0, 255, 0), aball_rect, 3)
-        pygame.draw.rect(screen, (255, 0, 0), bball_rect, 3)
-        pygame.draw.rect(screen, (0, 0, 255), sworda_rect, 3) 
-        pygame.draw.rect(screen, (255, 255, 0), swordb_rect, 3)
+        if a > 0:
+            pygame.draw.rect(screen, (0, 255, 0), aball_rect, 3)
+            pygame.draw.rect(screen, (0, 0, 255), sworda_rect, 3)
+        if b > 0:
+            pygame.draw.rect(screen, (255, 0, 0), bball_rect, 3)
+            pygame.draw.rect(screen, (255, 255, 0), swordb_rect, 3)
+    if a <= 0 or b <= 0:
+        if a <= 0:
+            game_endedee=pygame.event.Event(game_endede, {"winner": "red"})
+        if b <= 0:
+            game_endedee=pygame.event.Event(game_endede, {"winner": "blue"})
+        if wc==0:
+            wc=1
+            pygame.mixer.Sound.play(game_ended)
+            w=(f"The winner is {game_endedee.winner}!")
+            winertextb=fontw.render(w, True, "black")
+            winertext=fontw.render(w, True, "white")
+            rect_w = winertext.get_rect(center=(xwsize/2, ywsize/2))
+            rect_wr = winertextb.get_rect(center=(xwsize/2, ywsize/2))
+            pygame.time.set_timer(game_endede, 20000)
+        screen.blit(winertextb, rect_wr)
+        screen.blit(winertext, rect_w)
+        if event.type == game_endede:
+            running = False
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
