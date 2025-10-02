@@ -1,7 +1,8 @@
+version="1.2 Release"
+# https://github.com/yud0o0/ballgames_on_pygame_idk 
 import pygame
 import random as r
 import math as m
-import ctypes
 pygame.init()
 xwsize=500
 ywsize=500
@@ -24,29 +25,40 @@ ywwsize=ywsize-radius
 screen=pygame.display.set_mode(size=(xwsize, ywsize))
 pygame.display.set_caption("яица")
 fontaab=pygame.freetype.Font("arialnarrow.ttf", int(radius))
-fontaab.wide=True
-fontaab.strong=True
 fontw=pygame.freetype.Font("arialnarrow.ttf", 40)
 fontvs=pygame.freetype.Font("arialnarrow.ttf", 30)
 fontd=pygame.freetype.Font("arialnarrow.ttf", 20)
+fontsupinf=pygame.freetype.Font("arialnarrow.ttf", 12)
 _text_cache = {}
-def textwithoutline(font, text, fg=(255,255,255), outline_col=(0,0,0), outline_size=2):
+def textwithoutline(font, text, x, y, fg="white", outline_col="black", outline_size=2):
     key = (id(font), text, fg, outline_col, int(outline_size))
     if key in _text_cache:
-        return _text_cache[key]
-    base_surf, base_rect = font.render(text, fg)
-    ow = outline_size
-    w = base_surf.get_width() + 2*ow
-    h = base_surf.get_height() + 2*ow
-    surf = pygame.Surface((w, h), pygame.SRCALPHA)
-    for dx in range(-ow, ow+1):
-        for dy in range(-ow, ow+1):
-            if dx*dx + dy*dy <= ow*ow:
-                outline_surf, _ = font.render(text, outline_col)
-                surf.blit(outline_surf, (dx+ow, dy+ow))
-    surf.blit(base_surf, (ow, ow))
-    _text_cache[key] = surf
-    return surf
+        surf = _text_cache[key]
+    else:
+        base_surf, _ = font.render(text, fg)
+        ow = outline_size
+        w = base_surf.get_width() + 2*ow
+        h = base_surf.get_height() + 2*ow
+        surf = pygame.Surface((w, h), pygame.SRCALPHA)
+        for dx in range(-ow, ow+1):
+            for dy in range(-ow, ow+1):
+                if dx*dx + dy*dy <= ow*ow:
+                    outline_surf, _ = font.render(text, outline_col)
+                    surf.blit(outline_surf, (dx+ow, dy+ow))
+        surf.blit(base_surf, (ow, ow))
+        _text_cache[key] = surf
+    rect = surf.get_rect(center=(x, y))
+    screen.blit(surf, rect)
+def textfill(font, text, x=None, y=None, pos=None, fg=(0,0,0)):
+    if pos is not None:
+        x, y = pos
+    font.wide=True
+    font.strong=True
+    surf, _=font.render(text, fg)
+    rect=surf.get_rect(center=(x, y))
+    screen.blit(surf, rect)
+    font.wide=False
+    font.strong=False
 clock = pygame.time.Clock()
 running=True
 radiuss = radius*2 + 3 + 30
@@ -92,14 +104,12 @@ wc0=0
 wc1=0
 bv=0
 pygame.time.set_timer(game_startede, 3000)
-hwnd = pygame.display.get_wm_info()["window"]
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False 
         if event.type == game_startede and wc1==0:
             wc1+=1
-            ctypes.windll.user32.SetForegroundWindow(hwnd)
             bv=bv1
             anglea=anglea1
             angleb=angleb1
@@ -183,18 +193,14 @@ while running:
     if a > 0:
         pygame.draw.circle(screen, "black", coordsa, radius+2)
         pygame.draw.circle(screen, "red", coordsa, radius)
-        acounter, arect=fontaab.render(str(a), "black")
-        arect.center=coordsa
-        screen.blit(acounter, arect)
+        textfill(fontaab, str(a), pos=coordsa)
         sworda_rotated = pygame.transform.rotate(sworda, -m.degrees(anglesa)-90)
         sworda_rect = sworda_rotated.get_rect(center=(xsa, ysa))
         screen.blit(sworda_rotated, sworda_rect)
     if b > 0:
         pygame.draw.circle(screen, "black", coordsb, radius+2)
         pygame.draw.circle(screen, "blue", coordsb, radius)
-        bcounter, brect=fontaab.render(str(b), "black")
-        brect.center=coordsb
-        screen.blit(bcounter, brect)
+        textfill(fontaab, str(b), pos=coordsb)
         swordb_rotated = pygame.transform.rotate(swordb, -m.degrees(anglesb)-90)
         swordb_rect = swordb_rotated.get_rect(center=(xsb, ysb))
         screen.blit(swordb_rotated, swordb_rect)
@@ -215,21 +221,13 @@ while running:
             pygame.mixer.Sound.play(game_ended)
             w=(f"The winner is {game_endedee.winner}!")
             pygame.time.set_timer(game_endede, 20000)
-        winertext=textwithoutline(fontw, w)
-        wrect=winertext.get_rect(center=(xwsize/2, ywsize/2))
-        screen.blit(winertext, wrect)
+        textwithoutline(fontw, w, xwsize/2, ywsize/2)
         if event.type == game_endede:
             running = False
     vs=f"{aplayertype} VS {bplayertype}"
-    vstext=textwithoutline(fontvs, vs)
-    vsrect=vstext.get_rect(center=(xwsize/2, 20))
-    adtext=textwithoutline(fontd, f"A damage: {adamage}")
-    adrect=adtext.get_rect(center=(xwsize/4-60, ywsize-20))
-    bdtext=textwithoutline(fontd, f"D damage: {bdamage}")
-    bdrect=bdtext.get_rect(center=((xwsize/4)*3+60, ywsize-20))
-    screen.blit(vstext, vsrect)
-    screen.blit(adtext, adrect)
-    screen.blit(bdtext, bdrect)
+    textwithoutline(fontvs, vs, 250, 20)
+    textwithoutline(fontd, f"A damage: {adamage}", xwsize/4-60, ywsize-20)
+    textwithoutline(fontd, f"D damage: {bdamage}", (xwsize/4)*3+60, ywsize-20)
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
