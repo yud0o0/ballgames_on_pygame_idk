@@ -1,4 +1,4 @@
-version="1.3 Release"
+version="snapshot 1.4/05.10.2025"
 # https://github.com/yud0o0/ballgames_on_pygame_idk 
 import pygame
 import random as r
@@ -47,11 +47,20 @@ class Rendering:
         pygame.draw.circle(screen, "black", coords, radius+2)
         pygame.draw.circle(screen, color, coords, radius)
         Rendering.text.textfill(str(hp), pos=coords)
+    @staticmethod
+    def button(color,left,top,width,height,text):
+        global screen
+        buttonrectd=pygame.Rect(left-3,top-3,width+6,height+6)
+        buttonrect=pygame.Rect(left,top,width,height)
+        pygame.draw.rect(screen,"black",buttonrectd)
+        pygame.draw.rect(screen,color,buttonrect)
+        Rendering.text.textwithoutline(text, left+width/2, top+height/2, height/1.5)
+        return buttonrect
     def sword(sword,angles,xs,ys):
         sword_rotated = pygame.transform.rotate(sword, -m.degrees(angles)-90)
         sword_rect = sword_rotated.get_rect(center=(xs, ys))
         screen.blit(sword_rotated, sword_rect)
-        return(sword_rect)
+        return sword_rect
 class menu:
     def __init__(self):
         self.sworda=menu.files.sworda
@@ -74,7 +83,8 @@ class menu:
         areyouneedhb = True
         xwwsize=xwsize-radius
         ywwsize=ywsize-radius
-        running=True
+        MRunning=True
+        Running=False
         radiuss = radius*2 + 3 + 30
         anglesa=m.radians(180)
         anglesb=m.radians(360)
@@ -128,7 +138,7 @@ class menu:
             if y >= ywwsize or y <= ywsize-ywwsize:
                 yv *= -1
                 pygame.mixer.Sound.play(menu.files.punchwithwall_sound)
-            return(xv,yv)
+            return xv,yv
         def punchBALLS(distance,radius,xvb2,yvb2,xva2,yva2,xva,yva,xvb,yvb):
             if distance <= radius*2:
                 xva, yva = xvb2, yvb2
@@ -143,7 +153,7 @@ class menu:
                     pygame.mixer.Sound.play(menu.files.metal_sound)
             else:
                 swords_hit = False
-            return(swords_hit,brv)
+            return swords_hit,brv
         def coordscount(xa,xva,radiuss,anglesa,anglesb,xb,xvb,ya,yva,yb,yvb):
             xa += xva
             xsa = xa + radiuss * m.cos(anglesa)
@@ -155,7 +165,7 @@ class menu:
             ysb = yb + radiuss * m.sin(anglesb)
             coordsa=xa,ya
             coordsb=xb,yb
-            return(xa,xsa,xb,xsb,ya,ysa,yb,ysb,coordsa,coordsb)
+            return xa,xsa,xb,xsb,ya,ysa,yb,ysb,coordsa,coordsb
         def swordhitball(sword_rect,ball_rect,sword_hit,hp,damage):
             if sword_rect.colliderect(ball_rect):
                 if not sword_hit:
@@ -166,12 +176,59 @@ class menu:
                     pygame.time.delay(90)
             else:
                 sword_hit = False
-            return(sword_hit,hp,damage)
-    class menuwind:
-        ssssss=1
+            return sword_hit,hp,damage
 screen=pygame.display.set_mode(size=(menu.statics.xwsize, menu.statics.ywsize))
 pygame.display.set_caption("яица")
 clock = pygame.time.Clock()
+class menureal:
+    def __init__(self):
+        s=1
+
+    def menu(self):
+        MRunning=menu.statics.MRunning
+        global screen
+        amenu=False
+        bmenu=False
+        radius=menu.statics.radius
+        coordsbba=(menu.statics.xwsize/7*2,menu.statics.ywsize/7*3)
+        coordsbbb=(menu.statics.xwsize/7*5,menu.statics.ywsize/7*3)
+        bwidth=menu.statics.xwsize/4
+        bheight=menu.statics.ywsize/8
+        while MRunning:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    MRunning = False 
+            screen.fill("mediumseagreen")
+            if amenu==False and bmenu==False:
+                abutton=Rendering.button("red",((menu.statics.xwsize/7*2)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"abutton")
+                bbutton=Rendering.button("blue",((menu.statics.xwsize/7*5)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"bbutton")
+                Rendering.ball("red",coordsbba,radius,100)
+                Rendering.ball("blue",coordsbbb,radius,100)
+                mpos=pygame.mouse.get_pos()
+                if abutton.collidepoint(mpos):
+                    Rendering.button((250, 137, 117),((menu.statics.xwsize/7*2)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"abutton")
+                    Rendering.ball((250, 137, 117),coordsbba,radius,100)
+                    mp=pygame.mouse.get_pressed()
+                    if mp==(True,False,False):
+                        amenu=True
+                if bbutton.collidepoint(mpos):
+                    Rendering.button((134, 177, 209),((menu.statics.xwsize/7*5)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"bbutton")
+                    Rendering.ball((117, 157, 250),coordsbbb,radius,100)
+                    mp=pygame.mouse.get_pressed()
+                    if mp==(True,False,False):
+                        bmenu=True
+            if amenu or bmenu == True:
+                screen.fill("black")
+                Rendering.text.textwithoutline("I haven't had time to do this part of menu yet", menu.statics.xwsize/2, menu.statics.ywsize/3*2, (menu.statics.xwsize+menu.statics.ywsize)/50, "crimson")
+                Rendering.text.textwithoutline("press a Space to start", menu.statics.xwsize/2, menu.statics.ywsize/2, (menu.statics.xwsize+menu.statics.ywsize)/20, "crimson")
+            pygame.mouse.get_pressed
+            key=pygame.key.get_pressed()
+            if key[pygame.K_SPACE]:
+                MRunning=False
+                start=True
+            pygame.display.flip()
+            clock.tick(60)
+        return MRunning, start
 class swordfiles:
     sworda=pygame.image.load("sword.png")
     swordb=pygame.image.load("sword.png")
@@ -208,7 +265,6 @@ class game:
         self.sworda_hit=menu.statics.sworda_hit
         self.swords_hit=menu.statics.swords_hit
         self.game_endede=menu.statics.game_endede
-        self.running=menu.statics.running
         self.sworda=swordfiles.sworda
         self.swordb=swordfiles.swordb
     def gamestart(self):
@@ -232,18 +288,19 @@ class game:
         swordb_hit=self.swordb_hit
         sworda_hit=self.sworda_hit
         game_endede=self.game_endede
-        running=self.running
         swords_hit=self.swords_hit
         sworda=self.sworda
         swordb=self.swordb
+        global Running
         swordb_rect=swordb.get_rect()
         sworda_rect=sworda.get_rect()
         wc1=0
+        wc0=0
         pygame.time.set_timer(self.game_startede, 3000)
-        while running:
+        while Running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False 
+                    Running = False 
                 if event.type == self.game_startede and wc1==0:
                     wc1,bv,anglea,angleb,xva,xvb,yva,yvb=menu.math.gamestartedmath(wc1, self.bv1,self.anglea1,self.angleb1)
             distance=((xb-xa)**2+(yb-ya)**2)**0.5
@@ -296,7 +353,7 @@ class game:
                     pygame.time.set_timer(game_endede, 20000)
                 Rendering.text.textwithoutline(w, self.xwsize/2, self.ywsize/2,40)
                 if event.type == game_endede:
-                    running = False
+                    Running = False
             vs=f"{menu.statics.aplayertype} VS {menu.statics.bplayertype}"
             Rendering.text.textwithoutline(vs, 250, 20, 30)
             Rendering.text.textwithoutline(f"A damage: {adamage}", self.xwsize/4-60, self.ywsize-20,20)
@@ -304,5 +361,9 @@ class game:
             pygame.display.flip()
             clock.tick(60)
         pygame.quit()
-g = game() 
-g.gamestart()
+mr = menureal()
+MRunning, start=mr.menu()
+if MRunning==False and start==True:
+    Running=True
+    g = game() 
+    g.gamestart()
