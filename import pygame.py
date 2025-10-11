@@ -75,19 +75,20 @@ class menu:
         bdamage=1
         b=100
         bv=5
-        brv=0.06
+        brv=0.07
         radius=ywsize/20
         bv1=bv
         aplayertype="sword"
+        acollor="red"
         bplayertype="sword"
-        areyouneedhb = True
+        bcollor="blue"
+        areyouneedhb = False
         xwwsize=xwsize-radius
         ywwsize=ywsize-radius
         MRunning=True
         Running=False
-        radiuss = radius*2 + 3 + 30
-        anglesa=m.radians(180)
-        anglesb=m.radians(360)
+        anglesa=m.radians(r.randint(0,360))
+        anglesb=m.radians(r.randint(0,360))
         anglea=r.uniform(0, 2*m.pi)
         anglea1=anglea
         anglea=0
@@ -111,6 +112,7 @@ class menu:
         scale=3.5
         sword_height = radius * scale
         sword_width = int(sword_height * sratio)
+        radiuss = radius + int(sword_height/2) + 5
         game_endede=pygame.USEREVENT+1
         game_startede=pygame.USEREVENT+2
     class files:
@@ -171,7 +173,7 @@ class menu:
                 if not sword_hit:
                     sword_hit = True
                     hp -= damage
-                    damage += 1
+                    damage+=1
                     pygame.mixer.Sound.play(menu.files.fistpunch_sound)
                     pygame.time.delay(90)
             else:
@@ -200,10 +202,10 @@ class menureal:
                     MRunning = False 
             screen.fill("mediumseagreen")
             if amenu==False and bmenu==False:
-                abutton=Rendering.button("red",((menu.statics.xwsize/7*2)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"abutton")
-                bbutton=Rendering.button("blue",((menu.statics.xwsize/7*5)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"bbutton")
-                Rendering.ball("red",coordsbba,radius,100)
-                Rendering.ball("blue",coordsbbb,radius,100)
+                abutton=Rendering.button(menu.statics.acollor,((menu.statics.xwsize/7*2)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"abutton")
+                bbutton=Rendering.button(menu.statics.bcollor,((menu.statics.xwsize/7*5)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"bbutton")
+                Rendering.ball(menu.statics.acollor,coordsbba,radius,100)
+                Rendering.ball(menu.statics.bcollor,coordsbbb,radius,100)
                 mpos=pygame.mouse.get_pos()
                 if abutton.collidepoint(mpos):
                     Rendering.button((250, 137, 117),((menu.statics.xwsize/7*2)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"abutton")
@@ -213,14 +215,14 @@ class menureal:
                         amenu=True
                 if bbutton.collidepoint(mpos):
                     Rendering.button((134, 177, 209),((menu.statics.xwsize/7*5)-bwidth/2),(menu.statics.ywsize/7*5),bwidth,bheight,"bbutton")
-                    Rendering.ball((117, 157, 250),coordsbbb,radius,100)
+                    Rendering.ball((134, 177, 209),coordsbbb,radius,100)
                     mp=pygame.mouse.get_pressed()
                     if mp==(True,False,False):
                         bmenu=True
-            if amenu or bmenu == True:
-                screen.fill("black")
-                Rendering.text.textwithoutline("I haven't had time to do this part of menu yet", menu.statics.xwsize/2, menu.statics.ywsize/3*2, (menu.statics.xwsize+menu.statics.ywsize)/50, "crimson")
-                Rendering.text.textwithoutline("press a Space to start", menu.statics.xwsize/2, menu.statics.ywsize/2, (menu.statics.xwsize+menu.statics.ywsize)/20, "crimson")
+            if amenu == True:
+                Rendering.ball("red",coordsbba,radius,100)
+            if bmenu == True:
+                Rendering.ball("blue",coordsbba,radius,100)
             pygame.mouse.get_pressed
             key=pygame.key.get_pressed()
             if key[pygame.K_SPACE]:
@@ -329,10 +331,10 @@ class game:
                 sworda_hit,a,bdamage=menu.math.swordhitball(swordb_rect,aball_rect,sworda_hit,a,bdamage)
             screen.fill((252, 250, 250))
             if a > 0:
-                Rendering.ball("red",coordsa,radius,a)
+                Rendering.ball(menu.statics.acollor,coordsa,radius,a)
                 sworda_rect=Rendering.sword(sworda,anglesa,xsa,ysa)
             if b > 0:
-                Rendering.ball("blue",coordsb,radius,b)
+                Rendering.ball(menu.statics.bcollor,coordsb,radius,b)
                 swordb_rect=Rendering.sword(swordb,anglesb,xsb,ysb)
             if menu.statics.areyouneedhb==True:
                 if a > 0:
@@ -343,9 +345,9 @@ class game:
                     pygame.draw.rect(screen, (255, 255, 0), swordb_rect, 3)
             if a <= 0 or b <= 0:
                 if a <= 0:
-                    game_endedee=pygame.event.Event(game_endede, {"winner": "blue"})
+                    game_endedee=pygame.event.Event(game_endede, {"winner": menu.statics.bplayertype})
                 if b <= 0:
-                    game_endedee=pygame.event.Event(game_endede, {"winner": "red"})
+                    game_endedee=pygame.event.Event(game_endede, {"winner": menu.statics.aplayertype})
                 if wc0==0:
                     wc0=1
                     pygame.mixer.Sound.play(menu.files.game_ended)
